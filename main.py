@@ -1,9 +1,10 @@
-from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost, EventContext
-from pkg.plugin.events import *  # 导入事件类
+import os
+import shutil
+import yaml
+import logging
+import requests  # 导入 requests 库用于发送 HTTP 请求
+from pkg.plugin import Plugin, PluginHost, func
 
-
-# 注册插件
-@register(name="课代表插件", description="能够让机器人总结BILIBILI视频或者其他视频内容", version="0.1", author="师太太")
 class WebwlkrPlugin(Plugin):
 
     def __init__(self, plugin_host: PluginHost):
@@ -22,7 +23,7 @@ class WebwlkrPlugin(Plugin):
         """Call this function to access the specified API and retrieve content.
         
         Args:
-            url (str): URL to visit (not used in this implementation).
+            url (str): URL to visit (the actual URL will be sent in the request).
             brief_len (int): Max length of the plain text content.
 
         Returns:
@@ -30,9 +31,14 @@ class WebwlkrPlugin(Plugin):
         """
         api_url = "https://bibigpt.co/api/open/yRvg40M7C4cn"
         
+        payload = {
+            "url": url,
+            "includeDetail": False
+        }
+
         try:
-            # 发送 GET 请求到 API
-            response = requests.get(api_url)
+            # 发送 POST 请求到 API
+            response = requests.post(api_url, json=payload)
             response.raise_for_status()  # 如果响应状态码不是 200，将引发异常
             
             data = response.json()  # 将响应内容解析为 JSON 格式
