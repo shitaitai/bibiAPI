@@ -1,9 +1,25 @@
+from pkg.plugin.models import *
+from pkg.plugin.host import EventContext, PluginHost
+
+import logging
+import re
 import os
 import shutil
 import yaml
-import logging
-import requests  # 导入 requests 库用于发送 HTTP 请求
-from pkg.plugin import Plugin, PluginHost, func
+
+
+from . import mux, webpilot
+
+backend_mapping = {
+    "webpilot": webpilot.process,
+    "native": mux.process,
+}
+
+process: callable = None
+
+
+# 注册插件
+@register(name="Webwlkr", description="基于GPT的函数调用能力，为QChatGPT提供联网功能", version="0.1.1", author="师太太")
 
 class WebwlkrPlugin(Plugin):
 
